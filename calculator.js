@@ -1,42 +1,32 @@
-let calc_btns = document.querySelector(".calc-buttons");
+let display = document.querySelector(".display");
+let calc_btns_group = document.querySelector(".calc-buttons");
 let operators_list = document.querySelector(".operators-list");
 
-let del = ['AC', 'DEL', 'EXP'];
-let numbers = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'];
-let modifiers = ['.', '='];
-let operators = ['%', '/', '*', '-', '+'];
+let calculator_buttons = [['AC', 'DEL', 'EXP'], ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'], ['.', '='], ['%', '/', '*', '-', '+']];
 
-for(let i = 0; i < del.length; i++){
-    let new_button = document.createElement("button");
-    new_button.className = "del";
-    new_button.textContent = del[i];
-    calc_btns.appendChild(new_button);
+for(let i = 0; i < calculator_buttons.length; i++){
+    for(let j = 0; j < calculator_buttons[i].length; j++){
+        let new_button = document.createElement("button");
+        new_button.textContent = calculator_buttons[i][j];
+
+        if(i < 3){
+            new_button.className = "left-button";
+            calc_btns_group.appendChild(new_button);
+        }
+
+        else {
+            new_button.className = "operator";
+            operators_list.appendChild(new_button);
+        }
+    }
 }
 
-for(let i = 0; i < numbers.length; i++){
-    let new_button = document.createElement("button");
-    new_button.className = "number-btn";
-    new_button.textContent = numbers[i];
-    calc_btns.appendChild(new_button);
-}
-
-for(let i = 0; i < modifiers.length; i++){
-    let new_button = document.createElement("button");
-    new_button.className = "modifier";
-    new_button.textContent = modifiers[i];
-    calc_btns.appendChild(new_button);
-}
-
-for(let i = 0; i < operators.length; i++){
-    let new_button = document.createElement("button");
-    new_button.className = "operator";
-    new_button.textContent = operators[i];
-    operators_list.appendChild(new_button);
-}
-
-let num1 = 2;
-let operation = '/';
-let num2 = 0.5;
+let num1 = '';
+let operation = '';
+let num2 = '';
+let current_number = 2;
+let decimal_placed = false;
+let operator_selected = false;
 
 function operate(operator, num1, num2){
     switch(operator){
@@ -77,3 +67,63 @@ function divide(num1, num2){
         return num1/num2;
     }
 }
+
+let calc_btns = document.querySelectorAll(".calc-buttons > button");
+calc_btns.forEach((button) => {
+    button.addEventListener('click', () => {
+        if(current_number === 1){
+            if(num1.length < 10){
+
+                if(!(isNaN(parseInt(button.textContent)))){
+                    num1 += button.textContent;
+                }
+        
+                if(button.textContent === '.' && decimal_placed == false){
+                    num1 += button.textContent;
+                    decimal_placed = true;
+                }
+    
+            }
+            
+        }
+
+        else if(current_number === 2){
+            if(num2.length < 10){
+
+                if(!(isNaN(parseInt(button.textContent)))){
+                    num2 += button.textContent;
+                }
+        
+                if(button.textContent === '.' && decimal_placed == false){
+                    num2 += button.textContent;
+                    decimal_placed = true;
+                }
+    
+            }
+            
+        }
+    });
+})
+
+let operator_btns = document.querySelectorAll(".operators-list > button");
+
+operator_btns.forEach((button) => {
+    button.addEventListener('click', () => {
+        if(operator_selected === false){
+            operation = button.textContent;
+            operator_selected = true;
+        }
+
+        if(num1 && num2 && operator_selected){
+            num1 = operate(operation, num1, num2);
+            num2 = '';
+            operation = '';
+            operator_selected = false;
+        }
+
+        if(current_number === 1){
+            current_number = 2;
+            decimal_placed = false;
+        }
+    })
+})
