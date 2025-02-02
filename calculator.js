@@ -43,6 +43,9 @@ function operate(operator, num1, num2){
         case '/':
             return divide(num1, num2);
         
+        case '%':
+            return percentage(num1);
+
         default:
             return 'Invalid Operation'
     }
@@ -67,6 +70,10 @@ function divide(num1, num2){
     else{
         return num1/num2;
     }
+}
+
+function percentage(num){
+    return num/100;
 }
 
 function process_num(num, float){
@@ -120,7 +127,7 @@ calc_btns.forEach((button) => {
             if(num1 && num2){
                 let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
                 console.log(answer);
-                num1 = `${answer}`;
+                num1 = `${roundNumber(answer)}`;
                 num2 = '';
                 operation = '';
     
@@ -150,31 +157,61 @@ let operator_btns = document.querySelectorAll(".operators-list > button");
 
 operator_btns.forEach((button) => {
     button.addEventListener('click', () => {
-        if(current_number == 1){
-            current_number = 2;
+        //Edge case, no value entered before operating
+        if(!num1 && !num2){
+            num1 = '0';
         }
 
-        if(num1 && num2){
-            let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
-            console.log(answer);
-            num1 = `${answer}`;
-            num2 = '';
-            operation = '';
-
-            if(Number.isInteger(answer)){
-                num1_decimal_placed = false;
-                console.log('answer is not a float');
+        if(button.textContent != '%'){
+            if(current_number == 1){
+                current_number = 2;
+            }
+    
+            if(num1 && num2){
+                let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
+                console.log(answer);
+                num1 = `${roundNumber(answer)}`;
+                num2 = '';
+                operation = '';
+    
+                if(Number.isInteger(answer)){
+                    num1_decimal_placed = false;
+                    console.log('answer is not a float');
+                }
+    
+                else{
+                    num1_decimal_placed = true;
+                }
+                
+                num2_decimal_placed = false;
             }
 
-            else{
-                num1_decimal_placed = true;
-            }
-            
-            num2_decimal_placed = false;
+            //assign operation at the end so that the current numbers are handled before the new operation is used
+            operation = button.textContent;
+            display.textContent = num1.substring(0, 9) + operation;
         }
 
-        operation = button.textContent;
-        display.textContent = roundNumber(num1) + operation;
+        else {
+            if(num1){
+                operation = button.textContent;
+                let answer = operate(operation, process_num(num1, num1_decimal_placed));
+                console.log(answer);
+                num1 = `${roundNumber(answer)}`;
+                num2 = '';
+                operation = '';
+
+                if(Number.isInteger(answer)){
+                    num1_decimal_placed = false;
+                    console.log('answer is not a float');
+                }
+    
+                else{
+                    num1_decimal_placed = true;
+                }
+                
+                display.textContent = num1.substring(0, 9);
+            }
+        }
     })
 })
 
