@@ -24,8 +24,9 @@ for(let i = 0; i < calculator_buttons.length; i++){
 let num1 = '';
 let operation = '';
 let num2 = '';
-let current_number = 2;
-let decimal_placed = false;
+let current_number = 1;
+let num1_decimal_placed = false;
+let num2_decimal_placed = false;
 let operator_selected = false;
 
 function operate(operator, num1, num2){
@@ -68,40 +69,80 @@ function divide(num1, num2){
     }
 }
 
+function process_num(num, float){
+    if(float == true){
+        return parseFloat(num);
+    }
+
+    else {
+        return parseInt(num);
+    }
+}
+
+function roundNumber(num){
+    return Math.round(num * Math.pow(10, 7)) / Math.pow(10, 7);
+}
+
+
 let calc_btns = document.querySelectorAll(".calc-buttons > button");
+
 calc_btns.forEach((button) => {
     button.addEventListener('click', () => {
         if(current_number === 1){
-            if(num1.length < 10){
-
-                if(!(isNaN(parseInt(button.textContent)))){
-                    num1 += button.textContent;
-                }
-        
-                if(button.textContent === '.' && decimal_placed == false){
-                    num1 += button.textContent;
-                    decimal_placed = true;
-                }
-    
+            if(!(isNaN(parseInt(button.textContent)))){
+                num1 += button.textContent;
             }
-            
+        
+            if(button.textContent === '.' && num1_decimal_placed == false){
+                num1_decimal_placed = true;
+                num1 += button.textContent;
+            }
+
+            display.textContent = num1.substring(0, 9);
+            //todo potentially
+            //sliding window mechanic using difference between start and length
         }
 
         else if(current_number === 2){
-            if(num2.length < 10){
-
-                if(!(isNaN(parseInt(button.textContent)))){
-                    num2 += button.textContent;
-                }
+            if(!(isNaN(parseInt(button.textContent)))){
+                num2 += button.textContent;
+            }
         
-                if(button.textContent === '.' && decimal_placed == false){
-                    num2 += button.textContent;
-                    decimal_placed = true;
+            if(button.textContent === '.' && num2_decimal_placed == false){
+                num2_decimal_placed = true;
+                num2 += button.textContent;
+            }
+
+            display.textContent = num2.substring(0, 9);
+        }
+
+        if(button.textContent === '='){
+            if(num1 && num2){
+                let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
+                console.log(answer);
+                num1 = `${answer}`;
+                num2 = '';
+                operation = '';
+    
+                if(Number.isInteger(answer)){
+                    num1_decimal_placed = false;
+                    console.log('answer is not a float');
                 }
     
+                else{
+                    num1_decimal_placed = true;
+                }
+                
+                num2_decimal_placed = false;
+                current_number = 1;
             }
-            
+
+            display.textContent = num1.substring(0, 9);
         }
+
+        console.log(`num1 is ${num1}`);
+        console.log(`num2 is ${num2}`);
+
     });
 })
 
@@ -109,21 +150,31 @@ let operator_btns = document.querySelectorAll(".operators-list > button");
 
 operator_btns.forEach((button) => {
     button.addEventListener('click', () => {
-        if(operator_selected === false){
-            operation = button.textContent;
-            operator_selected = true;
+        if(current_number == 1){
+            current_number = 2;
         }
 
-        if(num1 && num2 && operator_selected){
-            num1 = operate(operation, num1, num2);
+        if(num1 && num2){
+            let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
+            console.log(answer);
+            num1 = `${answer}`;
             num2 = '';
             operation = '';
-            operator_selected = false;
+
+            if(Number.isInteger(answer)){
+                num1_decimal_placed = false;
+                console.log('answer is not a float');
+            }
+
+            else{
+                num1_decimal_placed = true;
+            }
+            
+            num2_decimal_placed = false;
         }
 
-        if(current_number === 1){
-            current_number = 2;
-            decimal_placed = false;
-        }
+        operation = button.textContent;
+        display.textContent = roundNumber(num1) + operation;
     })
 })
+
