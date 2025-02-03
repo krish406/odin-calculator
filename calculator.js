@@ -86,10 +86,22 @@ function process_num(num, float){
     }
 }
 
-function roundNumber(num){
-    return Math.round(num * Math.pow(10, 7)) / Math.pow(10, 7);
+function reset(){
+    num1 = ''
+    num2 = ''
+    operation = ''
+    current_number = 1
+    num1_decimal_placed = false
+    num2_decimal_placed = false
 }
 
+function roundNumber(num){
+    if(typeof(num) === 'string'){
+        return num
+    }
+
+    return Math.round(num * Math.pow(10, 7)) / Math.pow(10, 7);
+}
 
 let calc_btns = document.querySelectorAll(".calc-buttons > button");
 
@@ -126,8 +138,22 @@ calc_btns.forEach((button) => {
         if(button.textContent === '='){
             if(num1 && num2){
                 let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
+
                 console.log(answer);
                 num1 = `${roundNumber(answer)}`;
+                
+                if(isNaN(answer) && num1 === 'NO'){
+                    display.textContent = num1;
+                    reset();
+                    return;
+                }
+
+                else if(isNaN(num1)){
+                    display.textContent = "Invalid Input";
+                    reset();
+                    return;
+                }
+
                 num2 = '';
                 operation = '';
     
@@ -144,12 +170,18 @@ calc_btns.forEach((button) => {
                 current_number = 1;
             }
 
-            display.textContent = num1.substring(0, 9);
+            display.textContent = num1.substring(0, 9) ;
+        }
+
+        else if(button.textContent === 'AC'){
+            display.textContent = '';
+            reset();
+            return;
         }
 
         console.log(`num1 is ${num1}`);
         console.log(`num2 is ${num2}`);
-
+        
     });
 })
 
@@ -171,6 +203,19 @@ operator_btns.forEach((button) => {
                 let answer = operate(operation, process_num(num1, num1_decimal_placed), process_num(num2, num2_decimal_placed))
                 console.log(answer);
                 num1 = `${roundNumber(answer)}`;
+
+                if(isNaN(answer) && num1 === 'NO'){
+                    display.textContent = num1;
+                    reset();
+                    return;
+                }
+
+                else if(isNaN(num1)){
+                    display.textContent = "Invalid Input";
+                    reset();
+                    return;
+                }
+
                 num2 = '';
                 operation = '';
     
