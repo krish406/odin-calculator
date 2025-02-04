@@ -2,7 +2,7 @@ let display = document.querySelector(".display");
 let calc_btns_group = document.querySelector(".calc-buttons");
 let operators_list = document.querySelector(".operators-list");
 
-let calculator_buttons = [['AC', 'DEL', 'EXP'], ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'], ['.', '='], ['%', '/', '*', '-', '+']];
+let calculator_buttons = [['AC', 'DEL', 'NEG'], ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'], ['.', '='], ['%', '/', '*', '-', '+']];
 
 for(let i = 0; i < calculator_buttons.length; i++){
     for(let j = 0; j < calculator_buttons[i].length; j++){
@@ -95,12 +95,22 @@ function reset(){
     num2_decimal_placed = false
 }
 
+function undo(num){
+    let arr = num.split("");
+    arr.pop();
+    return arr.join("");
+}
+
 function roundNumber(num){
     if(typeof(num) === 'string'){
         return num
     }
 
     return Math.round(num * Math.pow(10, 7)) / Math.pow(10, 7);
+}
+
+function negate(num){
+    return -1 * num;
 }
 
 let calc_btns = document.querySelectorAll(".calc-buttons > button");
@@ -170,13 +180,48 @@ calc_btns.forEach((button) => {
                 current_number = 1;
             }
 
-            display.textContent = num1.substring(0, 9) ;
+            display.textContent = num1.substring(0, 9);
         }
 
         else if(button.textContent === 'AC'){
             display.textContent = '';
             reset();
             return;
+        }
+
+        else if(button.textContent === 'DEL'){
+            if(current_number == 1){
+                num1 = undo(num1);
+                display.textContent = num1.substring(0, 9);
+            }
+            
+            else if(current_number == 2){
+                if(num2.length > 0){
+                    num2 = undo(num2);
+                    display.textContent = num2.substring(0, 9);
+                }
+
+                else{
+                    operation = undo(operation);
+                    display.textContent = num1.substring(0, 9) + operation;
+                }
+            }
+        }
+
+        else if(button.textContent === 'NEG'){
+            if(current_number == 1){
+                if(num1.length > 0){
+                    num1 = `${negate(process_num(num1, num1_decimal_placed))}`;
+                    display.textContent = num1.substring(0, 9);
+                }
+            }
+            
+            else if(current_number == 2){
+                if(num2.length > 0){
+                    num2 = `${negate(process_num(num2, num2_decimal_placed))}`;
+                    display.textContent = num2.substring(0, 9);
+                }
+            }
         }
 
         console.log(`num1 is ${num1}`);
